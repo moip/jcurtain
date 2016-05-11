@@ -1,6 +1,5 @@
 package br.com.moip.jcurtain;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -8,12 +7,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import redis.clients.jedis.Jedis;
 
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

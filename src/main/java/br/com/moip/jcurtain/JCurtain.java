@@ -15,16 +15,16 @@ public class JCurtain {
     public boolean isOpen(String feature) {
         Feature feat = getFeature(feature);
 
-        return randomPercentage() <= feat.getPercentage();
+        return comparePercentages(feat.getPercentage());
     }
 
     public boolean isOpen(String feature, String user) {
         Feature feat = getFeature(feature);
 
-        return feat.getUsers().contains(user) || randomPercentage() <= feat.getPercentage();
+        return feat.getUsers().contains(user) || comparePercentages(feat.getPercentage());
     }
 
-    public void setJedis(Jedis jedis) {
+    void setJedis(Jedis jedis) {
         this.jedis = jedis;
     }
 
@@ -36,6 +36,11 @@ public class JCurtain {
 
     private int randomPercentage() {
         Random random = new Random();
-        return random.nextInt(101);
+
+        return random.nextInt(100) + 1;
+    }
+
+    private boolean comparePercentages(int featurePercentage){
+        return randomPercentage() <= featurePercentage;
     }
 }
