@@ -2,3 +2,4 @@
 .idea/
 gradlew.bat
 jcurtain.iml
+build/

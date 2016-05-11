@@ -28,13 +28,13 @@ public class JCurtain {
         this.jedis = jedis;
     }
 
-    private Feature getFeature(String name){
+    private Feature getFeature(String name) {
         int percentage = Integer.parseInt(jedis.get("feature:" + name + ":percentage"));
         Set<String> users = jedis.smembers("feature:" + name + ":users");
         return new Feature(name, percentage, users);
     }
 
-    private int randomPercentage(){
+    private int randomPercentage() {
         Random random = new Random();
         return random.nextInt(101);
     }
