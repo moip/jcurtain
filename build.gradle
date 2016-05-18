@@ -1,8 +1,10 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 group 'br.com.moip'
 version '0.0.1-SNAPSHOT'
-
-apply plugin: 'java'
-
+archivesBaseName = "jcurtain"
 sourceCompatibility = 1.5
 
 repositories {
@@ -14,4 +16,67 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile group:'redis.clients', name: 'jedis', version: '2.8.0'
     testCompile "org.mockito:mockito-core:1.+"
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'JCurtain'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'Redis-based Feature Flag Manager'
+                url 'https://github.com/moip/jcurtain'
+
+                scm {
+                    connection 'scm:git:ssh://git@github.com:moip/jcurtain.git'
+                    developerConnection 'scm:git:ssh://git@github.com:moip/jcurtain.git'
+                    url 'https://github.com/moip/jcurtain'
+                }
+
+                licenses {
+                    license {
+                        name 'The MIT License (MIT)'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'AndreProtti'
+                        name 'Andre Protti'
+                        email 'andre.protti@moip.com.br'
+                    }
+                }
+            }
+        }
+    }
 }
