@@ -6,7 +6,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +27,7 @@ public class JCurtainTest {
     }
 
     @Test
-    public void returnsTrueOnOneHundredPercent()  {
+    public void returnsTrueOnOneHundredPercent() {
         JCurtain jcurtain = new JCurtain("test1");
         Set<String> testSet = null;
         jcurtain.setJedis(jedis);
@@ -37,7 +39,7 @@ public class JCurtainTest {
     }
 
     @Test
-    public void returnsFalseOnZeroPercent()  {
+    public void returnsFalseOnZeroPercent() {
         JCurtain jcurtain = new JCurtain("test1");
         Set<String> testSet = null;
         jcurtain.setJedis(jedis);
@@ -48,9 +50,9 @@ public class JCurtainTest {
         assertFalse(jcurtain.isOpen("feature2"));
     }
 
-    @Test
-    public void returnsTrueOnListedUser() {
-        JCurtain jcurtain = new JCurtain("test1");
+    @Test(expected = JedisConnectionException.class)
+    public void returnsTrueOnListedUser() throws Exception {
+        JCurtain jcurtain = new JCurtain(new URI("redis://:foobared@localhost:6380/2"));
         jcurtain.setJedis(jedis);
 
         Set<String> testSet = new HashSet<String>(Arrays.asList("test-user"));
@@ -72,6 +74,16 @@ public class JCurtainTest {
         Mockito.when(jedis.smembers("feature:feature4:users")).thenReturn(testSet);
 
         assertFalse(jcurtain.isOpen("feature4", "test-invalid-user"));
+    }
+
+    @Test
+    public void returnsFalseOnNullPercentage() {
+        JCurtain jcurtain = new JCurtain("test1");
+        jcurtain.setJedis(jedis);
+
+        Mockito.when(jedis.get("feature:feature4:percentage")).thenReturn(null);
+
+        assertFalse(jcurtain.isOpen("feature4"));
     }
 
 }

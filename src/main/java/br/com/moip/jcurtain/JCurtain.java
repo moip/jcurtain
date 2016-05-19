@@ -2,6 +2,7 @@ package br.com.moip.jcurtain;
 
 import redis.clients.jedis.Jedis;
 
+import java.net.URI;
 import java.util.Random;
 import java.util.Set;
 
@@ -10,6 +11,10 @@ public class JCurtain {
 
     public JCurtain(String redis) {
         this.jedis = new Jedis(redis);
+    }
+
+    public JCurtain(URI uri) {
+        this.jedis = new Jedis(uri);
     }
 
     public boolean isOpen(String feature) {
@@ -29,7 +34,10 @@ public class JCurtain {
     }
 
     private Feature getFeature(String name) {
-        int percentage = Integer.parseInt(jedis.get("feature:" + name + ":percentage"));
+        String featurePercentage = jedis.get("feature:" + name + ":percentage");
+        if (featurePercentage == null) featurePercentage = "0";
+        int percentage = Integer.parseInt(featurePercentage);
+
         Set<String> users = jedis.smembers("feature:" + name + ":users");
         return new Feature(name, percentage, users);
     }
@@ -40,7 +48,7 @@ public class JCurtain {
         return random.nextInt(100) + 1;
     }
 
-    private boolean comparePercentages(int featurePercentage){
+    private boolean comparePercentages(int featurePercentage) {
         return randomPercentage() <= featurePercentage;
     }
 }
