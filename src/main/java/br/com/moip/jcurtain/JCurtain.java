@@ -1,6 +1,7 @@
 package br.com.moip.jcurtain;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.net.URI;
 import java.util.Random;
@@ -18,15 +19,21 @@ public class JCurtain {
     }
 
     public boolean isOpen(String feature) {
-        Feature feat = getFeature(feature);
-
-        return comparePercentages(feat.getPercentage());
+        try {
+            Feature feat = getFeature(feature);
+            return redisIsUp() && comparePercentages(feat.getPercentage());
+        } catch (JedisConnectionException e) {
+            return false;
+        }
     }
 
     public boolean isOpen(String feature, String user) {
-        Feature feat = getFeature(feature);
-
-        return feat.getUsers().contains(user) || comparePercentages(feat.getPercentage());
+        try {
+            Feature feat = getFeature(feature);
+            return redisIsUp() && (feat.getUsers().contains(user) || comparePercentages(feat.getPercentage()));
+        } catch (JedisConnectionException e) {
+            return false;
+        }
     }
 
     void setJedis(Jedis jedis) {
@@ -46,6 +53,10 @@ public class JCurtain {
         Random random = new Random();
 
         return random.nextInt(100) + 1;
+    }
+
+    private boolean redisIsUp() {
+        return jedis != null;
     }
 
     private boolean comparePercentages(int featurePercentage) {

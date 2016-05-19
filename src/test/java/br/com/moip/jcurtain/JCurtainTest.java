@@ -86,4 +86,22 @@ public class JCurtainTest {
         assertFalse(jcurtain.isOpen("feature4"));
     }
 
+    @Test
+    public void returnsFalseOnDroppedConnection() {
+        JCurtain jcurtain = new JCurtain("test1");
+
+        jcurtain.setJedis(jedis);
+
+        Mockito.when(jedis.get(Mockito.anyString())).thenThrow(JedisConnectionException.class);
+
+        assertFalse(jcurtain.isOpen("feature4"));
+    }
+
+    @Test
+    public void returnsFalseOnFailedConnection() {
+        JCurtain jcurtain = new JCurtain("test1");
+
+        assertFalse(jcurtain.isOpen("feature4"));
+    }
+
 }
