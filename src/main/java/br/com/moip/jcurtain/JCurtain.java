@@ -1,5 +1,7 @@
 package br.com.moip.jcurtain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
@@ -8,6 +10,9 @@ import java.util.Random;
 import java.util.Set;
 
 public class JCurtain {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JCurtain.class);
+
     private Jedis jedis;
 
     public JCurtain(String redis) {
@@ -21,8 +26,9 @@ public class JCurtain {
     public boolean isOpen(String feature) {
         try {
             Feature feat = getFeature(feature);
-            return redisIsUp() && comparePercentages(feat.getPercentage());
+            return comparePercentages(feat.getPercentage());
         } catch (JedisConnectionException e) {
+            LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
         }
     }
@@ -30,8 +36,9 @@ public class JCurtain {
     public boolean isOpen(String feature, String user) {
         try {
             Feature feat = getFeature(feature);
-            return redisIsUp() && (feat.getUsers().contains(user) || comparePercentages(feat.getPercentage()));
+            return feat.getUsers().contains(user) || comparePercentages(feat.getPercentage());
         } catch (JedisConnectionException e) {
+            LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
         }
     }
@@ -53,10 +60,6 @@ public class JCurtain {
         Random random = new Random();
 
         return random.nextInt(100) + 1;
-    }
-
-    private boolean redisIsUp() {
-        return jedis != null;
     }
 
     private boolean comparePercentages(int featurePercentage) {

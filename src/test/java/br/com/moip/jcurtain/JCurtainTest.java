@@ -87,6 +87,16 @@ public class JCurtainTest {
     }
 
     @Test
+    public void returnsFalseOnNullUsers() {
+        JCurtain jcurtain = new JCurtain("test1");
+        jcurtain.setJedis(jedis);
+
+        Mockito.when(jedis.get("feature:feature4:users")).thenReturn(null);
+
+        assertFalse(jcurtain.isOpen("feature4", "user-teste"));
+    }
+
+    @Test
     public void returnsFalseOnDroppedConnection() {
         JCurtain jcurtain = new JCurtain("test1");
 
