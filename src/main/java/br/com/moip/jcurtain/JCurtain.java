@@ -3,6 +3,8 @@ package br.com.moip.jcurtain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.net.URI;
@@ -13,14 +15,14 @@ public class JCurtain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JCurtain.class);
 
-    private Jedis jedis;
+    private JedisPool jedisPool;
 
     public JCurtain(String redis) {
-        this.jedis = new Jedis(redis);
+        this.jedisPool = new JedisPool(new JedisPoolConfig(), redis);
     }
 
     public JCurtain(URI uri) {
-        this.jedis = new Jedis(uri);
+        this.jedisPool = new JedisPool(new JedisPoolConfig(), uri);
     }
 
     public boolean isOpen(String feature) {
@@ -43,17 +45,19 @@ public class JCurtain {
         }
     }
 
-    void setJedis(Jedis jedis) {
-        this.jedis = jedis;
+    void setJedisPool(JedisPool jedis) {
+        this.jedisPool = jedis;
     }
 
     private Feature getFeature(String name) {
-        String featurePercentage = jedis.get("feature:" + name + ":percentage");
-        if (featurePercentage == null) featurePercentage = "0";
-        int percentage = Integer.parseInt(featurePercentage);
+        try (Jedis jedis = jedisPool.getResource()) {
+            String featurePercentage = jedis.get("feature:" + name + ":percentage");
+            if (featurePercentage == null) featurePercentage = "0";
+            int percentage = Integer.parseInt(featurePercentage);
 
-        Set<String> users = jedis.smembers("feature:" + name + ":users");
-        return new Feature(name, percentage, users);
+            Set<String> users = jedis.smembers("feature:" + name + ":users");
+            return new Feature(name, percentage, users);
+        }
     }
 
     private int randomPercentage() {
