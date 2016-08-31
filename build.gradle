@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group 'br.com.moip'
-version '0.1.0'
+version '0.1.1'
 archivesBaseName = "jcurtain"
 sourceCompatibility = 1.7
 

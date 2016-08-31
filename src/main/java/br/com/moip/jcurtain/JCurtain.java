@@ -15,21 +15,18 @@ public class JCurtain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JCurtain.class);
 
-    private JedisPool jedisPool;
 
-    public JCurtain(String redis) {
-        this.jedisPool = new JedisPool(new JedisPoolConfig(), redis);
-    }
+    public Jedis jedis;
 
-    public JCurtain(URI uri) {
-        this.jedisPool = new JedisPool(new JedisPoolConfig(), uri);
+    public JCurtain(Jedis jedis) {
+        this.jedis = jedis;
     }
 
     public boolean isOpen(String feature) {
         try {
             Feature feat = getFeature(feature);
             return comparePercentages(feat.getPercentage());
-        } catch (JedisConnectionException e) {
+        } catch (Exception e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
         }
@@ -39,25 +36,19 @@ public class JCurtain {
         try {
             Feature feat = getFeature(feature);
             return feat.getUsers().contains(user) || comparePercentages(feat.getPercentage());
-        } catch (JedisConnectionException e) {
+        } catch (Exception e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
         }
     }
 
-    void setJedisPool(JedisPool jedis) {
-        this.jedisPool = jedis;
-    }
-
     private Feature getFeature(String name) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            String featurePercentage = jedis.get("feature:" + name + ":percentage");
-            if (featurePercentage == null) featurePercentage = "0";
-            int percentage = Integer.parseInt(featurePercentage);
+        String featurePercentage = jedis.get("feature:" + name + ":percentage");
+        if (featurePercentage == null) featurePercentage = "0";
+        int percentage = Integer.parseInt(featurePercentage);
 
-            Set<String> users = jedis.smembers("feature:" + name + ":users");
-            return new Feature(name, percentage, users);
-        }
+        Set<String> users = jedis.smembers("feature:" + name + ":users");
+        return new Feature(name, percentage, users);
     }
 
     private int randomPercentage() {

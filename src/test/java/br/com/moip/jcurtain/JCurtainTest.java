@@ -20,9 +20,6 @@ import static org.junit.Assert.assertTrue;
 public class JCurtainTest {
 
     @Mock
-    private JedisPool jedisPool;
-
-    @Mock
     private Jedis jedis;
 
     private Set<String> testSet;
@@ -32,10 +29,8 @@ public class JCurtainTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        jCurtain = new JCurtain("test1");
+        jCurtain = new JCurtain(jedis);
         testSet = null;
-        jCurtain.setJedisPool(jedisPool);
-        Mockito.when(jedisPool.getResource()).thenReturn(jedis);
     }
 
     @Test
@@ -56,8 +51,7 @@ public class JCurtainTest {
 
     @Test
     public void returnsTrueOnListedUser() throws Exception {
-        JCurtain jcurtain = new JCurtain(new URI("redis://:foobared@localhost:6380/2"));
-        jcurtain.setJedisPool(jedisPool);
+        JCurtain jcurtain = new JCurtain(jedis);
 
         Set<String> testSet = new HashSet<String>(Arrays.asList("test-user"));
 
