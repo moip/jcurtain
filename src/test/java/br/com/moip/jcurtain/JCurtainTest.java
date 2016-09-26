@@ -9,7 +9,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +17,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JCurtainTest {
+
+    @Mock
+    private JedisPool jedisPool;
 
     @Mock
     private Jedis jedis;
@@ -29,8 +31,10 @@ public class JCurtainTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        jCurtain = new JCurtain(jedis);
+        jCurtain = new JCurtain(jedisPool);
         testSet = null;
+
+        Mockito.when(jedisPool.getResource()).thenReturn(jedis);
     }
 
     @Test
@@ -51,7 +55,7 @@ public class JCurtainTest {
 
     @Test
     public void returnsTrueOnListedUser() throws Exception {
-        JCurtain jcurtain = new JCurtain(jedis);
+        JCurtain jcurtain = new JCurtain(jedisPool);
 
         Set<String> testSet = new HashSet<String>(Arrays.asList("test-user"));
 
