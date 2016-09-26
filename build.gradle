@@ -5,7 +5,7 @@ apply plugin: 'signing'
 group 'br.com.moip'
 version '0.1.1'
 archivesBaseName = "jcurtain"
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
