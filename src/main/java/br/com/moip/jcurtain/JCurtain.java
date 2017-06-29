@@ -13,8 +13,7 @@ public class JCurtain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JCurtain.class);
 
-
-    public JedisPool jedisPool;
+    private JedisPool jedisPool;
 
     public JCurtain(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
@@ -62,4 +61,5 @@ public class JCurtain {
     private boolean comparePercentages(int featurePercentage) {
         return randomPercentage() <= featurePercentage;
     }
+    
 }
