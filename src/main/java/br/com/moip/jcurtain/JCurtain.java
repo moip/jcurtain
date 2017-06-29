@@ -7,7 +7,6 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.Random;
-import java.util.Set;
 
 public class JCurtain {
 
@@ -37,17 +36,9 @@ public class JCurtain {
         }
     }
 
-    private Feature getFeature(String name) {
-
-        try (Jedis jedis = jedisPool.getResource()) {
-
-            String featurePercentage = jedis.get("feature:" + name + ":percentage");
-            if (featurePercentage == null) featurePercentage = "0";
-            int percentage = Integer.parseInt(featurePercentage);
-
-            Set<String> users = jedis.smembers("feature:" + name + ":users");
-            return new Feature(name, percentage, users);
-        }
+    public Feature getFeature(String name) {
+        Jedis jedis = jedisPool.getResource();
+        return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
     }
 
     private boolean isOpenForUser(String feature, String user) {
@@ -67,8 +58,4 @@ public class JCurtain {
         return new Random().nextInt(100) + 1;
     }
 
-    private boolean comparePercentages(int featurePercentage) {
-        return randomPercentage() <= featurePercentage;
-    }
-    
 }
