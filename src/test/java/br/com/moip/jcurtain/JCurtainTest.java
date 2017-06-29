@@ -39,28 +39,28 @@ public class JCurtainTest {
 
     @Test
     public void returnsTrueOnOneHundredPercent() {
-        Mockito.when(jedis.get("feature:feature1:percentage")).thenReturn("100");
-        Mockito.when(jedis.smembers("feature:feature1:users")).thenReturn(testSet);
+        Mockito.when(jedis.get("feature:name:percentage")).thenReturn("100");
+        Mockito.when(jedis.smembers("feature:name:users")).thenReturn(testSet);
 
-        assertTrue(jCurtain.isOpen("feature1"));
+        assertTrue(jCurtain.isOpen("name"));
     }
 
     @Test
     public void returnsFalseOnZeroPercent() {
-        Mockito.when(jedis.get("feature:feature2:percentage")).thenReturn("0");
-        Mockito.when(jedis.smembers("feature:feature2:users")).thenReturn(testSet);
+        Mockito.when(jedis.get("feature:name:percentage")).thenReturn("0");
+        Mockito.when(jedis.smembers("feature:name:users")).thenReturn(testSet);
 
-        assertFalse(jCurtain.isOpen("feature2"));
+        assertFalse(jCurtain.isOpen("name"));
     }
 
     @Test
     public void returnsTrueOnListedUser() throws Exception {
         JCurtain jcurtain = new JCurtain(jedisPool);
 
-        Mockito.when(jedis.get("feature:feature3:percentage")).thenReturn("0");
-        Mockito.when(jedis.sismember("feature:feature3:users", "test-user")).thenReturn(true);
+        Mockito.when(jedis.get("feature:name:percentage")).thenReturn("0");
+        Mockito.when(jedis.sismember("feature:name:users", "test-user")).thenReturn(true);
 
-        assertTrue(jcurtain.isOpen("feature3", "test-user"));
+        assertTrue(jcurtain.isOpen("name", "test-user"));
     }
 
 
@@ -68,40 +68,37 @@ public class JCurtainTest {
     public void returnsFalseOnUnlistedUser() {
         Set<String> testSet = new HashSet<String>(Arrays.asList("test-user"));
 
-        Mockito.when(jedis.get("feature:feature4:percentage")).thenReturn("0");
-        Mockito.when(jedis.smembers("feature:feature4:users")).thenReturn(testSet);
+        Mockito.when(jedis.get("feature:name:percentage")).thenReturn("0");
+        Mockito.when(jedis.smembers("feature:name:users")).thenReturn(testSet);
 
-        assertFalse(jCurtain.isOpen("feature4", "test-invalid-user"));
+        assertFalse(jCurtain.isOpen("name", "test-invalid-user"));
     }
 
 
     @Test
     public void returnsFalseOnNullPercentage() {
-        Mockito.when(jedis.get("feature:feature4:percentage")).thenReturn(null);
+        Mockito.when(jedis.get("feature:name:percentage")).thenReturn(null);
 
-        assertFalse(jCurtain.isOpen("feature4"));
-
+        assertFalse(jCurtain.isOpen("name"));
     }
 
     @Test
     public void returnsFalseOnNullUsers() {
-        Mockito.when(jedis.get("feature:feature4:users")).thenReturn(null);
+        Mockito.when(jedis.get("feature:name:users")).thenReturn(null);
 
-        assertFalse(jCurtain.isOpen("feature4", "user-teste"));
+        assertFalse(jCurtain.isOpen("name", "user-teste"));
     }
-
 
     @Test
     public void returnsFalseOnDroppedConnection() {
         Mockito.when(jedis.get(Mockito.anyString())).thenThrow(JedisConnectionException.class);
 
-        assertFalse(jCurtain.isOpen("feature4"));
+        assertFalse(jCurtain.isOpen("name"));
     }
-
 
     @Test
     public void returnsFalseOnFailedConnection() {
-        assertFalse(jCurtain.isOpen("feature4"));
+        assertFalse(jCurtain.isOpen("name"));
     }
 
 }
