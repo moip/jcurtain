@@ -21,8 +21,7 @@ public class JCurtain {
 
     public boolean isOpen(String feature) {
         try {
-            Feature feat = getFeature(feature);
-            return comparePercentages(feat.getPercentage());
+            return isFeatureOpen(feature);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
