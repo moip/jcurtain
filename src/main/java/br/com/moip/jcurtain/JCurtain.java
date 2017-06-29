@@ -31,8 +31,7 @@ public class JCurtain {
 
     public boolean isOpen(String feature, String user) {
         try {
-            Feature feat = getFeature(feature);
-            return feat.getUsers().contains(user) || comparePercentages(feat.getPercentage());
+            return isOpenForUser(feature, user) || isFeatureOpen(feature);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
@@ -52,10 +51,21 @@ public class JCurtain {
         }
     }
 
-    private int randomPercentage() {
-        Random random = new Random();
+    private boolean isOpenForUser(String feature, String user) {
+        return jedisPool.getResource().sismember("feature:" + feature + ":users", user);
+    }
 
-        return random.nextInt(100) + 1;
+    private int getFeaturePercentage(String feature) {
+        String featurePercentage = jedisPool.getResource().get("feature:" + feature + ":percentage");
+        return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
+    }
+
+    private boolean isFeatureOpen(String feature) {
+        return randomPercentage() <= getFeaturePercentage(feature);
+    }
+
+    private int randomPercentage() {
+        return new Random().nextInt(100) + 1;
     }
 
     private boolean comparePercentages(int featurePercentage) {

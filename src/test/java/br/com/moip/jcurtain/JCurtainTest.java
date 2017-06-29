@@ -57,10 +57,8 @@ public class JCurtainTest {
     public void returnsTrueOnListedUser() throws Exception {
         JCurtain jcurtain = new JCurtain(jedisPool);
 
-        Set<String> testSet = new HashSet<String>(Arrays.asList("test-user"));
-
         Mockito.when(jedis.get("feature:feature3:percentage")).thenReturn("0");
-        Mockito.when(jedis.smembers("feature:feature3:users")).thenReturn(testSet);
+        Mockito.when(jedis.sismember("feature:feature3:users", "test-user")).thenReturn(true);
 
         assertTrue(jcurtain.isOpen("feature3", "test-user"));
     }
