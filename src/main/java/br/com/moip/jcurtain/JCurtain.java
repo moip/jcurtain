@@ -26,15 +26,15 @@ public class JCurtain {
     /**
      * <p>Checks if your feature is open.
      *
-     * <p>You must have a Redis key with name "feature:myfeaturename:percentage"
+     * <p>You must have a Redis key with name "feature:[name-of-feature]:percentage"
      * with value between 0 and 100.
      *
      * <p>Examples:
      *
      * <ul compact>
-     * <li>feature:myfeaturename:percentage = 0 (feature not open)
-     * <li>feature:myfeaturename:percentage = 100 (feature completely open)
-     * <li>feature:myfeaturename:percentage = 30 (see below)
+     * <li>feature:[name-of-feature]:percentage = 0 (feature not open)
+     * <li>feature:[name-of-feature]:percentage = 100 (feature completely open)
+     * <li>feature:[name-of-feature]:percentage = 30 (see below)
      * </ul>
      *
      *  <p>If you're in the last case then JCurtain will generate a random number X
@@ -58,7 +58,7 @@ public class JCurtain {
      * <p>Checks if the specified feature is open for the user.
      *
      * <p>This method first checks if the user is member of the {@link java.util.Set} stored at the
-     * Redis key "feature:myfeaturename:members".
+     * Redis key "feature:[name-of-feature]:members".
      *
      * <p>If the user is not present in the list and your feature is configured with percentage
      * then this method will behave like {@link JCurtain#isOpen isOpen(feature)}
