@@ -79,6 +79,22 @@ public class JCurtain {
     }
 
     /**
+     * This method opens a feature for an user
+     *
+     * @param feature   the feature name
+     * @param user     the unique identifier for the user (email, login, sequential ID etc)
+     */
+    public void openFeatureForUser(String feature, String user) {
+        try {
+            jedisPool.getResource().sadd("feature:"+feature+":members", user);
+        } catch (JedisConnectionException e) {
+            LOGGER.error("[JCurtain] Redis connection failure while adding user to feature. " +
+                            "[user={},feature={}]", user, feature);
+        }
+    }
+
+
+    /**
      * <p>This method returns a {@link Feature} object with the feature configuration and members.
      *
      * @param name the feature name
