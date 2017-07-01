@@ -85,8 +85,13 @@ public class JCurtain {
      * @return the {@link Feature}
      */
     public Feature getFeature(String name) {
-        Jedis jedis = jedisPool.getResource();
-        return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
+        try {
+            Jedis jedis = jedisPool.getResource();
+            return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
+        } catch (JedisConnectionException e) {
+            LOGGER.error("[JCurtain] Redis connection failure! Returning default value NULL. featureName={}", name);
+            return null;
+        }
     }
 
     private boolean isOpenForUser(String feature, String user) {
