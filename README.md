@@ -30,7 +30,7 @@ feature:[name-of-feature]:users
 
 * To use JCurtain, first your need to initialize the configuration by defining your **redis URL** (password@ip:port/database).
 ```java
-JCurtain jCurtain = new JCurtain(new URI(redis://:p4ssw0rd@10.0.1.1:6380/15)); 
+JCurtain jCurtain = new JCurtain(new URI("redis://:p4ssw0rd@10.0.1.1:6380/15")); 
 ```
 
 * Check if the curtain is opened for a feature using the method "isOpen", passing the name of the feature you want to check.
@@ -49,7 +49,7 @@ If a user is on the Redis set in **"feature:[name-of-the-feature]:users"** the m
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/moip/jcurtain. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
-1. Fork it ( https://github.com/moip/jcurtain/fork )
+1. Fork it (https://github.com/moip/jcurtain/fork)
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)

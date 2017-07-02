@@ -6,6 +6,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.net.URI;
 import java.util.Random;
 
 public class JCurtain {
@@ -21,6 +22,15 @@ public class JCurtain {
      */
     public JCurtain(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
+    }
+
+    /**
+     * Creates an instance of JCurtain
+     *
+     * @param uri your redis URI, e.g.: redis://:p4ssw0rd@10.0.1.1:6380/15
+     */
+    public JCurtain(URI uri) {
+        this.jedisPool = new JedisPool(uri);
     }
 
     /**
