@@ -38,4 +38,12 @@ public class Feature {
         return users != null ? users.equals(feature.users) : feature.users == null;
     }
 
+    @Override
+    public String toString() {
+        return "Feature{" +
+                "name='" + name + '\'' +
+                ", percentage=" + percentage +
+                ", users=" + users +
+                '}';
+    }
 }
