@@ -96,7 +96,7 @@ public class JCurtain {
      */
     public void openFeatureForUser(String feature, String user) {
         try {
-            jedisPool.getResource().sadd("feature:"+feature+":members", user);
+            jedisPool.getResource().sadd("feature:"+feature+":users", user);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure while adding user to feature. " +
                             "[user={},feature={}]", user, feature);
