@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group 'br.com.moip'
-version '0.1.2'
+version '0.1.3'
 archivesBaseName = "jcurtain"
 sourceCompatibility = 1.7
 
@@ -34,6 +34,9 @@ artifacts {
 }
 
 signing {
+    required {
+        gradle.taskGraph.hasTask("uploadArchives")
+    }
     sign configurations.archives
 }
 
