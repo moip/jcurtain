@@ -14,7 +14,7 @@ Add this to your POM file
 <dependency>
   <groupId>br.com.moip</groupId>
   <artifactId>jcurtain</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
