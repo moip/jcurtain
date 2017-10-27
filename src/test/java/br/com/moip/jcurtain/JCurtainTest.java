@@ -99,4 +99,26 @@ public class JCurtainTest {
         assertTrue(jCurtain.getFeature("name").equals(new Feature("name", 50, members)));
     }
 
+    @Test
+    public void returnUserFixedTrue() {
+        Mockito.when(jedisPool.getResource().sismember("feature:name:users", "test-user")).thenReturn(false);
+        Mockito.when(jedisPool.getResource().get("feature:name:percentage")).thenReturn("100");
+        Mockito.when(jedisPool.getResource().get("feature:name:isFixedUser")).thenReturn("true");
+        assertTrue(jCurtain.isOpen("name","test-user"));
+        Mockito.when(jedisPool.getResource().sismember("feature:name:users", "test-user")).thenReturn(true);
+        Mockito.when(jedisPool.getResource().get("feature:name:percentage")).thenReturn("0");
+        assertTrue(jCurtain.isOpen("name", "test-user"));
+    }
+
+    @Test
+    public void returnUserFixedFalse() {
+        Mockito.when(jedisPool.getResource().sismember("feature:name:users", "test-user")).thenReturn(false);
+        Mockito.when(jedisPool.getResource().get("feature:name:percentage")).thenReturn("100");
+        Mockito.when(jedisPool.getResource().get("feature:name:isFixedUser")).thenReturn("false");
+        assertTrue(jCurtain.isOpen("name","test-user"));
+        Mockito.when(jedisPool.getResource().get("feature:name:percentage")).thenReturn("0");
+        Mockito.when(jedisPool.getResource().sismember("feature:name:users", "test-user")).thenReturn(false);
+        assertFalse(jCurtain.isOpen("name", "test-user"));
+    }
+
 }
