@@ -107,7 +107,7 @@ public class JCurtain {
     /**
      * <p>This method returns a {@link Feature} object with the feature configuration and members.
      * @param name name the feature name
-     * @return
+     * @return the {@link Feature}
      */
     public Feature getFeature(String name) {
         try {
@@ -133,7 +133,10 @@ public class JCurtain {
         Jedis jedis = jedisPool.getResource();
         Boolean isFeatureOpen = randomPercentage() <= getFeaturePercentage(feature);
         Boolean isFixedUser = Boolean.valueOf(jedis.get("feature:" + feature + ":isFixedUser"));
-        if(user != null && isFeatureOpen && isFixedUser){
+        Long totalUsers = jedis.scard("feature:"+feature+"users");
+        Long permittedTotalUsers = jedis.scard("feature:"+feature+"amount");
+        int percentage = getFeaturePercentage(feature);
+        if(user != null && isFeatureOpen && isFixedUser && permittedTotalUsers < (totalUsers * percentage)){
             openFeatureForUser(feature,user);
         }
         return isFeatureOpen;

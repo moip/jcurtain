@@ -7,7 +7,7 @@ public class Feature {
     private final String name;
     private final int percentage;
     private final Set<String> users;
-    private final boolean isFixedUser;
+    private final boolean shouldStoreUser;
 
     public Feature(String name, int percentage, Set<String> users) {
         this(name,percentage,users,false);
@@ -17,7 +17,7 @@ public class Feature {
         this.name = name;
         this.percentage = percentage;
         this.users = users;
-        this.isFixedUser = isFixedUser;
+        this.shouldStoreUser = isFixedUser;
     }
 
     public String getName() {
@@ -50,11 +50,11 @@ public class Feature {
                 "name='" + name + '\'' +
                 ", percentage=" + percentage +
                 ", users=" + users +
-                ", isFixedUser=" + isFixedUser +
+                ", isFixedUser=" + shouldStoreUser +
                 '}';
     }
 
-    public boolean isFixedUser() {
-        return isFixedUser;
+    public boolean isShouldStoreUser() {
+        return shouldStoreUser;
     }
 }
