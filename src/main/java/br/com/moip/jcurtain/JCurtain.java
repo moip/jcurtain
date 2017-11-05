@@ -57,7 +57,7 @@ public class JCurtain {
      */
     public boolean isOpen(String feature) {
         try {
-            return isFeatureOpen(feature);
+            return isFeatureOpen(feature,null);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
@@ -81,7 +81,7 @@ public class JCurtain {
      */
     public boolean isOpen(String feature, String user) {
         try {
-            return isOpenForUser(feature, user) || isFeatureOpen(feature);
+            return isOpenForUser(feature, user) || isFeatureOpen(feature, user);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
             return false;
@@ -106,14 +106,14 @@ public class JCurtain {
 
     /**
      * <p>This method returns a {@link Feature} object with the feature configuration and members.
-     *
-     * @param name the feature name
+     * @param name name the feature name
      * @return the {@link Feature}
      */
     public Feature getFeature(String name) {
         try {
             Jedis jedis = jedisPool.getResource();
-            return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
+            return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"),
+                    Boolean.valueOf(jedis.get("feature:" + name + ":shouldStoreUser")));
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value NULL. featureName={}", name);
             return null;
@@ -129,8 +129,25 @@ public class JCurtain {
         return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
     }
 
-    private boolean isFeatureOpen(String feature) {
-        return randomPercentage() <= getFeaturePercentage(feature);
+    private boolean isFeatureOpen(String feature,String user) {
+        Jedis jedis = jedisPool.getResource();
+        Boolean isFeatureOpen = randomPercentage() <= getFeaturePercentage(feature);
+        Boolean shouldStoreUser = Boolean.valueOf(jedis.get("feature:" + feature + ":shouldStoreUser"));
+
+        String totalUsersStored = jedis.get("feature:"+feature+":users");
+        Long totalUsers = 0L;
+        if(totalUsersStored != null)
+            totalUsers = Long.valueOf(totalUsersStored);
+
+        String amountUsers = jedis.get("feature:"+feature+":amount");
+        Long permittedTotalUsers = 0L;
+        if(amountUsers != null)
+            permittedTotalUsers = Long.valueOf(amountUsers);
+        int percentage = getFeaturePercentage(feature);
+        if(user != null && isFeatureOpen && shouldStoreUser && permittedTotalUsers < (totalUsers * percentage)){
+            openFeatureForUser(feature,user);
+        }
+        return isFeatureOpen;
     }
 
     private int randomPercentage() {
