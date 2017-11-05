@@ -50,7 +50,7 @@ public class Feature {
                 "name='" + name + '\'' +
                 ", percentage=" + percentage +
                 ", users=" + users +
-                ", isFixedUser=" + shouldStoreUser +
+                ", shouldStoreUser=" + shouldStoreUser +
                 '}';
     }
 

@@ -113,7 +113,7 @@ public class JCurtain {
         try {
             Jedis jedis = jedisPool.getResource();
             return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"),
-                    Boolean.valueOf(jedis.get("feature:" + name + ":isFixedUser")));
+                    Boolean.valueOf(jedis.get("feature:" + name + ":shouldStoreUser")));
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value NULL. featureName={}", name);
             return null;
@@ -132,11 +132,19 @@ public class JCurtain {
     private boolean isFeatureOpen(String feature,String user) {
         Jedis jedis = jedisPool.getResource();
         Boolean isFeatureOpen = randomPercentage() <= getFeaturePercentage(feature);
-        Boolean isFixedUser = Boolean.valueOf(jedis.get("feature:" + feature + ":isFixedUser"));
-        Long totalUsers = jedis.scard("feature:"+feature+"users");
-        Long permittedTotalUsers = jedis.scard("feature:"+feature+"amount");
+        Boolean shouldStoreUser = Boolean.valueOf(jedis.get("feature:" + feature + ":shouldStoreUser"));
+
+        String totalUsersStored = jedis.get("feature:"+feature+":users");
+        Long totalUsers = 0L;
+        if(totalUsersStored != null)
+            totalUsers = Long.valueOf(totalUsersStored);
+
+        String amountUsers = jedis.get("feature:"+feature+":amount");
+        Long permittedTotalUsers = 0L;
+        if(amountUsers != null)
+            permittedTotalUsers = Long.valueOf(amountUsers);
         int percentage = getFeaturePercentage(feature);
-        if(user != null && isFeatureOpen && isFixedUser && permittedTotalUsers < (totalUsers * percentage)){
+        if(user != null && isFeatureOpen && shouldStoreUser && permittedTotalUsers < (totalUsers * percentage)){
             openFeatureForUser(feature,user);
         }
         return isFeatureOpen;
