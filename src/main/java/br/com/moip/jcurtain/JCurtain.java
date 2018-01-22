@@ -122,6 +122,8 @@ public class JCurtain {
     private boolean isOpenForUser(String feature, String user) {
         try (Jedis jedis = jedisPool.getResource()) {
             return jedis.sismember("feature:" + feature + ":users", user);
+        } catch (JedisConnectionException e) {
+            return false;
         }
     }
 
@@ -129,6 +131,8 @@ public class JCurtain {
         try (Jedis jedis = jedisPool.getResource()) {
             String featurePercentage = jedis.get("feature:" + feature + ":percentage");
             return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
+        } catch (JedisConnectionException e) {
+            return 0;
         }
     }
 
