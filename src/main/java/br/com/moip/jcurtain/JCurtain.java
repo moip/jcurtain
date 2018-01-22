@@ -95,8 +95,8 @@ public class JCurtain {
      * @param user     the unique identifier for the user (email, login, sequential ID etc)
      */
     public void openFeatureForUser(String feature, String user) {
-        try {
-            jedisPool.getResource().sadd("feature:"+feature+":users", user);
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.sadd("feature:"+feature+":users", user);
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure while adding user to feature. " +
                             "[user={},feature={}]", user, feature);
@@ -111,8 +111,7 @@ public class JCurtain {
      * @return the {@link Feature}
      */
     public Feature getFeature(String name) {
-        try {
-            Jedis jedis = jedisPool.getResource();
+        try (Jedis jedis = jedisPool.getResource()) {
             return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
         } catch (JedisConnectionException e) {
             LOGGER.error("[JCurtain] Redis connection failure! Returning default value NULL. featureName={}", name);
@@ -121,12 +120,20 @@ public class JCurtain {
     }
 
     private boolean isOpenForUser(String feature, String user) {
-        return jedisPool.getResource().sismember("feature:" + feature + ":users", user);
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.sismember("feature:" + feature + ":users", user);
+        } catch (JedisConnectionException e) {
+            return false;
+        }
     }
 
     private int getFeaturePercentage(String feature) {
-        String featurePercentage = jedisPool.getResource().get("feature:" + feature + ":percentage");
-        return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
+        try (Jedis jedis = jedisPool.getResource()) {
+            String featurePercentage = jedis.get("feature:" + feature + ":percentage");
+            return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
+        } catch (JedisConnectionException e) {
+            return 0;
+        }
     }
 
     private boolean isFeatureOpen(String feature) {
