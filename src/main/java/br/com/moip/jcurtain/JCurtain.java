@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.net.URI;
 import java.util.Random;
@@ -58,8 +59,8 @@ public class JCurtain {
     public boolean isOpen(String feature) {
         try {
             return isFeatureOpen(feature);
-        } catch (JedisConnectionException e) {
-            LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
+        } catch (JedisException e) {
+            LOGGER.error("[JCurtain] Redis error. Returning default value FALSE for [feature="+feature+"]", e);
             return false;
         }
     }
@@ -82,8 +83,8 @@ public class JCurtain {
     public boolean isOpen(String feature, String user) {
         try {
             return isOpenForUser(feature, user) || isFeatureOpen(feature);
-        } catch (JedisConnectionException e) {
-            LOGGER.error("[JCurtain] Redis connection failure! Returning default value FALSE. Feature={}", feature);
+        } catch (JedisException e) {
+            LOGGER.error("[JCurtain] Redis error. Returning default value FALSE for [feature="+feature+"]", e);
             return false;
         }
     }
@@ -97,9 +98,8 @@ public class JCurtain {
     public void openFeatureForUser(String feature, String user) {
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.sadd("feature:"+feature+":users", user);
-        } catch (JedisConnectionException e) {
-            LOGGER.error("[JCurtain] Redis connection failure while adding user to feature. " +
-                            "[user={},feature={}]", user, feature);
+        } catch (JedisException e) {
+            LOGGER.error("[JCurtain] Redis error. Returning default value FALSE for [user="+user+",feature="+feature+"]", e);
         }
     }
 
@@ -113,8 +113,8 @@ public class JCurtain {
     public Feature getFeature(String name) {
         try (Jedis jedis = jedisPool.getResource()) {
             return new Feature(name, getFeaturePercentage(name), jedis.smembers("feature:" + name + ":users"));
-        } catch (JedisConnectionException e) {
-            LOGGER.error("[JCurtain] Redis connection failure! Returning default value NULL. featureName={}", name);
+        } catch (JedisException e) {
+            LOGGER.error("[JCurtain] Redis error. Returning default value FALSE for [feature="+e+"]", e);
             return null;
         }
     }
@@ -122,8 +122,6 @@ public class JCurtain {
     private boolean isOpenForUser(String feature, String user) {
         try (Jedis jedis = jedisPool.getResource()) {
             return jedis.sismember("feature:" + feature + ":users", user);
-        } catch (JedisConnectionException e) {
-            return false;
         }
     }
 
@@ -131,8 +129,6 @@ public class JCurtain {
         try (Jedis jedis = jedisPool.getResource()) {
             String featurePercentage = jedis.get("feature:" + feature + ":percentage");
             return (featurePercentage == null ? 0 : Integer.parseInt(featurePercentage));
-        } catch (JedisConnectionException e) {
-            return 0;
         }
     }
 
