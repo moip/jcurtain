@@ -14,8 +14,16 @@ Add this to your POM file
 <dependency>
   <groupId>br.com.moip</groupId>
   <artifactId>jcurtain</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.5</version>
 </dependency>
+```
+
+Gradle:
+
+Add this to your build.gradle file
+
+```groovy
+compile('br.com.moip:jcurtain:0.1.5')
 ```
 
 ## Usage
